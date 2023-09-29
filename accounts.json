@@ -1,5 +1,5 @@
 {
-    "timestamp": "2023-09-29 02:56:21",
+    "timestamp": "2023-09-29 02:56:48",
     "data": [
         {
             "rank": 1,
@@ -34,7 +34,7 @@
             "total_blocks": 30433,
             "super_blocks": 43,
             "daily_blocks": "1013",
-            "total_xuni": 16967,
+            "total_xuni": 16972,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -115,7 +115,7 @@
             "total_blocks": 11223,
             "super_blocks": 14,
             "daily_blocks": "230",
-            "total_xuni": 2359,
+            "total_xuni": 2360,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -169,7 +169,7 @@
             "total_blocks": 7876,
             "super_blocks": 18,
             "daily_blocks": "1056",
-            "total_xuni": 12643,
+            "total_xuni": 12649,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -178,7 +178,7 @@
             "total_blocks": 7666,
             "super_blocks": 13,
             "daily_blocks": "668",
-            "total_xuni": 10690,
+            "total_xuni": 10696,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -187,7 +187,7 @@
             "total_blocks": 7656,
             "super_blocks": 18,
             "daily_blocks": "345",
-            "total_xuni": 5381,
+            "total_xuni": 5390,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -205,7 +205,7 @@
             "total_blocks": 7363,
             "super_blocks": 13,
             "daily_blocks": "113",
-            "total_xuni": 12683,
+            "total_xuni": 12685,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -394,7 +394,7 @@
             "total_blocks": 4095,
             "super_blocks": 5,
             "daily_blocks": "390",
-            "total_xuni": 6269,
+            "total_xuni": 6271,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -412,7 +412,7 @@
             "total_blocks": 4015,
             "super_blocks": 1,
             "daily_blocks": "170",
-            "total_xuni": 509,
+            "total_xuni": 510,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -664,7 +664,7 @@
             "total_blocks": 2728,
             "super_blocks": 3,
             "daily_blocks": "135",
-            "total_xuni": 2876,
+            "total_xuni": 2877,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -880,7 +880,7 @@
             "total_blocks": 2013,
             "super_blocks": 2,
             "daily_blocks": "302",
-            "total_xuni": 518,
+            "total_xuni": 523,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -934,7 +934,7 @@
             "total_blocks": 1894,
             "super_blocks": 2,
             "daily_blocks": "1791",
-            "total_xuni": 2958,
+            "total_xuni": 2974,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -943,7 +943,7 @@
             "total_blocks": 1879,
             "super_blocks": 1,
             "daily_blocks": "81",
-            "total_xuni": 1095,
+            "total_xuni": 1096,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -988,7 +988,7 @@
             "total_blocks": 1818,
             "super_blocks": 4,
             "daily_blocks": "735",
-            "total_xuni": 2954,
+            "total_xuni": 2957,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1015,7 +1015,7 @@
             "total_blocks": 1735,
             "super_blocks": 1,
             "daily_blocks": "77",
-            "total_xuni": 2815,
+            "total_xuni": 2816,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1069,7 +1069,7 @@
             "total_blocks": 1656,
             "super_blocks": 1,
             "daily_blocks": "748",
-            "total_xuni": 2761,
+            "total_xuni": 2763,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1168,7 +1168,7 @@
             "total_blocks": 1515,
             "super_blocks": 2,
             "daily_blocks": "147",
-            "total_xuni": 2405,
+            "total_xuni": 2406,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1195,7 +1195,7 @@
             "total_blocks": 1471,
             "super_blocks": 6,
             "daily_blocks": "259",
-            "total_xuni": 2556,
+            "total_xuni": 2557,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1285,7 +1285,7 @@
             "total_blocks": 1320,
             "super_blocks": 1,
             "daily_blocks": "38",
-            "total_xuni": 800,
+            "total_xuni": 801,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1348,7 +1348,7 @@
             "total_blocks": 1268,
             "super_blocks": 3,
             "daily_blocks": "1263",
-            "total_xuni": 1823,
+            "total_xuni": 1849,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1951,7 +1951,7 @@
             "total_blocks": 995,
             "super_blocks": 0,
             "daily_blocks": "965",
-            "total_xuni": 1577,
+            "total_xuni": 1586,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -1996,7 +1996,7 @@
             "total_blocks": 974,
             "super_blocks": 2,
             "daily_blocks": "672",
-            "total_xuni": 1723,
+            "total_xuni": 1731,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2050,7 +2050,7 @@
             "total_blocks": 955,
             "super_blocks": 1,
             "daily_blocks": "38",
-            "total_xuni": 86,
+            "total_xuni": 87,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2149,7 +2149,7 @@
             "total_blocks": 933,
             "super_blocks": 2,
             "daily_blocks": "932",
-            "total_xuni": 1654,
+            "total_xuni": 1656,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2284,7 +2284,7 @@
             "total_blocks": 899,
             "super_blocks": 2,
             "daily_blocks": "0",
-            "total_xuni": 64,
+            "total_xuni": 65,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2356,7 +2356,7 @@
             "total_blocks": 885,
             "super_blocks": 1,
             "daily_blocks": "787",
-            "total_xuni": 1429,
+            "total_xuni": 1432,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2374,7 +2374,7 @@
             "total_blocks": 874,
             "super_blocks": 1,
             "daily_blocks": "35",
-            "total_xuni": 70,
+            "total_xuni": 71,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2401,7 +2401,7 @@
             "total_blocks": 866,
             "super_blocks": 0,
             "daily_blocks": "866",
-            "total_xuni": 1353,
+            "total_xuni": 1355,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -2527,7 +2527,7 @@
             "total_blocks": 847,
             "super_blocks": 1,
             "daily_blocks": "813",
-            "total_xuni": 1462,
+            "total_xuni": 1465,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -3139,7 +3139,7 @@
             "total_blocks": 774,
             "super_blocks": 0,
             "daily_blocks": "692",
-            "total_xuni": 1211,
+            "total_xuni": 1218,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -3301,7 +3301,7 @@
             "total_blocks": 758,
             "super_blocks": 1,
             "daily_blocks": "756",
-            "total_xuni": 1279,
+            "total_xuni": 1287,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -3715,7 +3715,7 @@
             "total_blocks": 711,
             "super_blocks": 1,
             "daily_blocks": "709",
-            "total_xuni": 1159,
+            "total_xuni": 1167,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -3868,7 +3868,7 @@
             "total_blocks": 695,
             "super_blocks": 0,
             "daily_blocks": "0",
-            "total_xuni": 383,
+            "total_xuni": 384,
             "total_hashes_per_second": "100000.0"
         },
         {
@@ -4237,7 +4237,7 @@
             "total_blocks": 626,
             "super_blocks": 1,
             "daily_blocks": "50",
-            "total_xuni": 794,
+            "total_xuni": 795,
             "total_hashes_per_second": "100000.0"
         },
         {
