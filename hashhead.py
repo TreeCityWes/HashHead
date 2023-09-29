@@ -19,6 +19,20 @@ response2 = requests.get(url2)
 soup1 = BeautifulSoup(response1.text, 'html.parser')
 soup2 = BeautifulSoup(response2.text, 'html.parser')
 
+def get_super_blocks(account):
+    url = f"http://xenminer.mooo.com/get_super_blocks/{account}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        try:
+            data = response.json()
+            return data.get('super_blocks', 0)
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON from /get_super_blocks/{account} endpoint")
+            return 0
+    else:
+        print(f"Error: Received status code {response.status_code} from /get_super_blocks/{account} endpoint")
+        return 0
+
 # Initialize a list to store the account data
 account_data = []
 
@@ -33,6 +47,7 @@ if response_xuni.status_code == 200:
         print("Error decoding JSON from /get_xuni_counts endpoint")
 
 # Extract and Process Account Data from the first URL
+# Extract and Process Account Data from the first URL
 for row in soup1.select('table tr')[1:]:
     cols = row.select('td')
     if not cols:
@@ -40,13 +55,13 @@ for row in soup1.select('table tr')[1:]:
     rank = int(cols[0].text.strip())
     account = cols[1].text.strip()
     total_blocks = int(cols[2].text.strip())
-    super_blocks = int(cols[3].text.strip())
+    super_blocks = get_super_blocks(account)  # Get super_blocks from the API, instead of scraping it
     daily_blocks = cols[4].text.strip()
     account_data.append({
         'rank': rank,
         'account': account,
         'total_blocks': total_blocks,
-        'super_blocks': super_blocks,
+        'super_blocks': super_blocks,  # This will now hold the value from the API
         'daily_blocks': daily_blocks
     })
 # After fetching the account_data, append the Xuni Counts
