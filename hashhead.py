@@ -46,9 +46,9 @@ if response_xuni.status_code == 200:
     except json.JSONDecodeError:
         print("Error decoding JSON from /get_xuni_counts endpoint")
 
-# Extract and Process Account Data from the first URL
-# Extract and Process Account Data from the first URL
-for row in soup1.select('table tr')[1:]:
+
+# Extract and Process Account Data from the second URL
+for row in soup2.select('table tr')[1:]:
     cols = row.select('td')
     if not cols:
         continue
@@ -56,14 +56,23 @@ for row in soup1.select('table tr')[1:]:
     account = cols[1].text.strip()
     total_blocks = int(cols[2].text.strip())
     super_blocks = get_super_blocks(account)  # Get super_blocks from the API, instead of scraping it
-    daily_blocks = cols[4].text.strip()
-    account_data.append({
-        'rank': rank,
-        'account': account,
-        'total_blocks': total_blocks,
-        'super_blocks': super_blocks,  # This will now hold the value from the API
-        'daily_blocks': daily_blocks
-    })
+    total_hashes_per_second = cols[4].text.strip()
+
+    for entry in account_data:
+        if entry['account'] == account:
+            entry['total_hashes_per_second'] = total_hashes_per_second
+            break
+    else:
+        if rank <= 25000:
+            account_data.append({
+                'rank': rank,
+                'account': account,
+                'total_blocks': total_blocks,
+                'super_blocks': super_blocks,  # This will now hold the value from the API
+                'total_hashes_per_second': total_hashes_per_second,
+                'daily_blocks': 'Sub-500 Rank'
+            })
+
 # After fetching the account_data, append the Xuni Counts
 for entry in account_data:
     account = entry.get('account', '')
