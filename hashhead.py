@@ -20,16 +20,22 @@ soup2 = BeautifulSoup(response2.text, 'html.parser')
 
 def get_super_blocks(account):
     url = f"http://xenminer.mooo.com/get_super_blocks/{account}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        try:
+    try:
+        response = requests.get(url, timeout=20)  # Increase timeout to 20 seconds
+        if response.status_code == 200:
             data = response.json()
             return data.get('super_blocks', 0)
-        except json.JSONDecodeError:
-            print(f"Error decoding JSON from /get_super_blocks/{account} endpoint")
+        else:
+            print(f"Error: Received status code {response.status_code} from {url}")
             return 0
-    else:
-        print(f"Error: Received status code {response.status_code} from /get_super_blocks/{account} endpoint")
+    except ConnectTimeout:
+        print(f"Error: Connection to {url} timed out.")
+        return 0
+    except RequestException as e:
+        print(f"Error: Unable to get data from {url}, due to {str(e)}")
+        return 0
+    except json.JSONDecodeError:
+        print(f"Error decoding JSON from {url}")
         return 0
 
 # Initialize a list to store the account data
