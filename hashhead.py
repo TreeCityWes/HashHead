@@ -58,6 +58,9 @@ for entry in account_data:
 # Extract Network Stats
 network_stats = {}
 
+# Add timestamp
+network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
 # Send GET request to get total_blocks
 total_blocks_response = requests.get(total_blocks_url)
 
@@ -86,7 +89,6 @@ for soup in [soup1, soup2]:
 # Write the network stats to a separate JSON file
 with open('network_stats.json', 'w') as f:
     json.dump(network_stats, f, indent=4)
-
 # Extract and Process Account Data from the second URL
 for row in soup2.select('table tr')[1:]:
     cols = row.select('td')
