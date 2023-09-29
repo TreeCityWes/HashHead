@@ -1,17 +1,11 @@
-name: HashHead
-
+name: hashhead
 on:
   schedule:
-    - cron: '*/3 * * * *'
-  workflow_dispatch:
-
-permissions:
-  contents: read
+    - cron: '*/3 * * * *'  # This will run the workflow every 3 minutes
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
