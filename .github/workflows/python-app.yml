@@ -33,4 +33,4 @@ jobs:
         git add -A
         timestamp=$(date -u)
         git commit -m "Data updated on ${timestamp}" || exit 0
-        git push https://${{ secrets.GH_TOKEN }}@github.com/TreeCityWes/hashhead.git HEAD:main
+        git push https://${{ secrets.GH_TOKEN }}github.com/TreeCityWes/hashhead.git/ HEAD:main
