@@ -4,8 +4,6 @@ import json
 from datetime import datetime
 import os
 
-access_token = os.getenv('ACCESS_TOKEN')
-
 # Define the URLs
 url1 = "http://xenminer.mooo.com:4448/leaderboard"
 url2 = "http://xenminer.mooo.com/leaderboard"
