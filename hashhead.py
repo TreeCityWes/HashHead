@@ -12,7 +12,6 @@ url2 = "http://xenminer.mooo.com/leaderboard"
 total_blocks_url = "http://xenminer.mooo.com/total_blocks"  
 url_xuni = "http://xenminer.mooo.com/get_xuni_counts"
 
-
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
 response1 = requests.get(url1)
 response2 = requests.get(url2)
@@ -46,7 +45,6 @@ if response_xuni.status_code == 200:
     except json.JSONDecodeError:
         print("Error decoding JSON from /get_xuni_counts endpoint")
 
-
 # Extract and Process Account Data from the second URL
 for row in soup2.select('table tr')[1:]:
     cols = row.select('td')
@@ -55,7 +53,7 @@ for row in soup2.select('table tr')[1:]:
     rank = int(cols[0].text.strip())
     account = cols[1].text.strip()
     total_blocks = int(cols[2].text.strip())
-    super_blocks = get_super_blocks(account)  # Get super_blocks from the API, instead of scraping it
+    super_blocks = get_super_blocks(account)
     total_hashes_per_second = cols[4].text.strip()
 
     for entry in account_data:
@@ -68,7 +66,7 @@ for row in soup2.select('table tr')[1:]:
                 'rank': rank,
                 'account': account,
                 'total_blocks': total_blocks,
-                'super_blocks': super_blocks,  # This will now hold the value from the API
+                'super_blocks': super_blocks,
                 'total_hashes_per_second': total_hashes_per_second,
                 'daily_blocks': 'Sub-500 Rank'
             })
@@ -77,7 +75,6 @@ for row in soup2.select('table tr')[1:]:
 for entry in account_data:
     account = entry.get('account', '')
     entry['total_xuni'] = xuni_counts.get(account, '0')
-
 
 # Extract Network Stats
 network_stats = {}
