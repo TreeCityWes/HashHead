@@ -2,7 +2,7 @@ name: Run Scraper and Update Data
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # This will run every 5 minutes
+    - cron: '0,10,20,30,40,50 * * * *'  # This will run at the 10-minute mark every hour
   workflow_dispatch:
 
 jobs:
