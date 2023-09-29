@@ -105,7 +105,7 @@ for row in soup2.select('table tr')[1:]:
             entry['total_hashes_per_second'] = total_hashes_per_second
             break
     else:
-        if rank <= 5000:
+        if rank <= 25000:
             account_data.append({
                 'rank': rank,
                 'account': account,
