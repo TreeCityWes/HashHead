@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TreeCityWes.eth's XenBlocks Mining Account Stats!</title>
+    <title>TreeCityWes.eth's Xenium Mining Account Stats!</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
     <style>
         body {
@@ -107,13 +107,12 @@
 </head>
 <body>
         <div class="console-window">
-        <h1>XenBLOCKs Mining Account Stats</h1>
+        <h1>Xenium Mining Account Stats</h1>
         <form id="account-form">
             <label for="account">Enter your XenBLOCKs account</label>
             <input type="text" id="account" name="account" placeholder="Your account address">
             <button type="submit" id="fetch-button">Check Account</button>
         </form>
-        <p class="hidden" id="refresh-message">Data can be refreshed in<span id="countdown">60</span> Seconds</p>
         <a href="https://www.buymeacoffee.com/treecitywes"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=treecitywes&button_colour=00e608&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
         <a href="https://github.com/jacklevin74/xenminer/" target="_blank" class="download-link" style="color: lightblue;">Download the latest miner here!</a>
     </div> <!-- Close console-window div -->
@@ -149,51 +148,50 @@
         if(savedAccountAddress) {
             document.getElementById("account").value = savedAccountAddress;
         }
-
-        function updateCurrentTime() {
-            const now = new Date();
-            const options = { hour: 'numeric', minute: '2-digit', hour12: true };
-
-            document.getElementById("current-time").textContent = now.toLocaleDateString('en-US', options);
-        }
-
-        const updateDisclaimer = () => {
-            let now = new Date();
-            let nextUpdateTime = new Date(now);
-            nextUpdateTime.setMinutes(Math.ceil(now.getMinutes() / 10) * 10); // Round up to the next multiple of 10
-            nextUpdateTime.setSeconds(0);
-
-            if (nextUpdateTime.getMinutes() === 0) {
-                nextUpdateTime.setHours(now.getHours() + 1);
+        
+        const updateDisclaimer = (timestamp) => {
+            console.log("Received Timestamp:", timestamp);
+            let disclaimerEl = document.getElementById("disclaimer");
+            if (timestamp) {
+                let utcTimestamp = timestamp + 'Z'; // append 'Z' to interpret as UTC
+                let updatedTime = new Date(utcTimestamp);
+                disclaimerEl.innerHTML = `This data updates every 5-10 minutes <br>Data was last updated on ${updatedTime.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    hour12: true,
+                    timeZoneName: 'short'
+                })}.`;
+            } else {
+                disclaimerEl.innerHTML = "Failed to update the disclaimer: Missing timestamp.";
             }
-
-            let disclaimerText = `The time is currently ${now.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.<br>`;
-            disclaimerText += `The next data update will be at ${nextUpdateTime.toLocaleString('en-US', {  hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.`;
-
-            document.getElementById("disclaimer").innerHTML = disclaimerText;
-}
+        };
 
 
         const fetchData = (account) => {
             fetch(networkStatsUrl)
                 .then(response => response.json())
                 .then(data => {
-                    let networkHtmlStr = '';
-                    networkHtmlStr += `<tr><td class="data-label">RPC URL:</td> <td class="data-value">http://xenminer.mooo.com:5555</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">CURRENT TIME:</td> <td class="data-value" id="current-time"></td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">CHAIN ID:</td> <td class="data-value">0x1A5F0</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">CURRENCY:</td> <td class="data-value">XNM</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">TOTAL BLOCKS MINED:</td> <td class="data-value">${data["Total Blocks"] || 'N/A'}</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">Mining Speed:</td> <td class="data-value">${data["Mining speed"] || 'N/A'}</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">Mining Blockrate:</td> <td class="data-value">${data["Mining Blockrate"] || 'N/A'}</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">Current Miners:</td> <td class="data-value">${data["Current miners"] || 'N/A'}</td></tr>`;
-                    networkHtmlStr += `<tr><td class="data-label">Current Difficulty:</td> <td class="data-value">${data["Current difficulty"] || 'N/A'}</td></tr>`;
+                    let networkHtmlStr = `
+                    <tr><td class="data-label">RPC URL:</td> <td class="data-value">http://xenminer.mooo.com:5555</td></tr>
+                    <tr><td class="data-label">CHAIN ID:</td> <td class="data-value">0x1A5F0</td></tr>
+                    <tr><td class="data-label">CURRENCY:</td> <td class="data-value">XNM</td></tr>
+                    <tr><td class="data-label">TOTAL BLOCKS:</td> <td class="data-value">${data["Total Blocks"] || 'N/A'}</td></tr>
+                    <tr><td class="data-label">XENIUM SUPPLY:</td> <td class="data-value">${(data["Total Blocks"] * 10).toLocaleString() || 'N/A'}</td></tr>
+                    <tr><td class="data-label">MINING SPEED:</td> <td class="data-value">${data["Mining speed"] || 'N/A'}</td></tr>
+                    <tr><td class="data-label">MINING BLOCKRATE:</td> <td class="data-value">${data["Mining Blockrate"] || 'N/A'}</td></tr>
+                    <tr><td class="data-label">TOTAL MINERS:</td> <td class="data-value">${data["Current miners"] || 'N/A'}</td></tr>
+                    <tr><td class="data-label">CURRENT DIFFICULTY:</td> <td class="data-value">${data["Current difficulty"] || 'N/A'}</td></tr>`;
+        
                     document.getElementById("network-details-table").innerHTML = networkHtmlStr;
                     document.getElementById("network-details").classList.remove("hidden");
-
-                    updateCurrentTime();
-                    setInterval(updateCurrentTime, 1000);
                     
+                    // calling updateDisclaimer with timestamp from the fetched data.
+                    updateDisclaimer(data.timestamp); 
+        
                     return fetch(accountsInfoUrl);
                 })
                 .then(response => response.json())
@@ -207,7 +205,7 @@
                         accountHtmlStr += `<tr><td class="data-label">TOTAL BLOCKS:</td> <td class="data-value">${accountData.total_blocks}</td></tr>`;
                         accountHtmlStr += `<tr><td class="data-label">XUNI BLOCKS:</td> <td class="data-value">${accountData.total_xuni}</td></tr>`;
                         accountHtmlStr += `<tr><td class="data-label">SUPER BLOCKS:</td> <td class="data-value">${accountData.super_blocks}</td></tr>`;
-                        accountHtmlStr += `<tr><td class="data-label">DAILY BLOCKS:</td> <td class="data-value">${accountData.daily_blocks}</td></tr>`;
+                        accountHtmlStr += `<tr><td class="data-label">BLOCKS PER DAY:</td> <td class="data-value">${accountData.daily_blocks}</td></tr>`;
                     } else {
                         accountHtmlStr = '<tr><td colspan="2" class="data-value">No data available for this account.</td></tr>';
                     }
@@ -226,6 +224,8 @@
                 });
         };
 
+
+
         document.getElementById("account-form").addEventListener("submit", function(e) {
             e.preventDefault();
             let currentAccount = document.getElementById("account").value.toLowerCase();
@@ -233,9 +233,8 @@
             fetchData(currentAccount);
         });
 
-        updateDisclaimer();
-        setInterval(updateDisclaimer, 1000); // Update every second to keep the time accurate
     });
 </script>
+
 
 </html>
