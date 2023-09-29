@@ -28,9 +28,9 @@ jobs:
       
     - name: Commit and push if it changed
       run: |
-        git config user.name "GitHub Action"
-        git config user.email "action@github.com"
+        git config user.name "TreeCityWes"
+        git config user.email "wes@treecitytrading.us"
         git add -A
         timestamp=$(date -u)
         git commit -m "Data updated on ${timestamp}" || exit 0
-        git push https://${{ secrets.GH_TOKEN }}@github.com/TreeCityWes/hashhead.git HEAD:main
+        git push https://${{ secrets.GH_TOKEN }}@github.com/TreeCityWes/HashHead.git HEAD:main
