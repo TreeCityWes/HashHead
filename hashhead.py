@@ -115,7 +115,7 @@ for row in soup2.select('table tr')[1:]:
                 'daily_blocks': 'Sub-500 Rank'
             })
 
-account_data = account_data[:5000] + [{'account': entry['account'], 'status': 'Out of top 5000'} for entry in account_data[5000:]]
+account_data = account_data[:25000] + [{'account': entry['account'], 'status': 'Out of top 25000'} for entry in account_data[25000:]]
 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 account_output_data = {'timestamp': timestamp, 'data': account_data}
 
