@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TreeCityWes.eth's XenBlocks Mining Account Stats!</title>
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <style>
+        body {
+            background-color: black;
+            font-family: 'Arial', sans-serif;
+            color: #0f0;
+            margin: 0;
+            padding: 0;
+        }
+        #page-border {
+            border: 8px solid #0f0;
+            padding: 20px;
+            background-color: black;
+        }
+        .console-window {
+            max-width: 80%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1em;
+        }
+        h1, h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1em;
+        }
+        label, input[type="text"] {
+            font-size: 1.2em;
+        }
+        input[type="text"] {
+            height: 35px;
+            padding: 5px;
+            border: 1px solid #0f0;
+            background-color: #000;
+            color: #0f0;
+        }
+        button {
+            background: #0f0;
+            border: 0;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #000;
+            font-weight: bold; /* Make the text bold */
+        }
+        button:hover {
+            background: #080;
+            transform: scale(1.05);
+        }
+        #result {
+            padding: 10px;
+            text-align: center; /* Center-align the content within #result */
+        }
+        
+        .result-section {
+            margin-bottom: 20px; /* Add some spacing between sections */
+        }
+        
+        .table-container {
+            display: flex;
+            flex-direction: column; /* Stack the tables vertically */
+            align-items: center;
+            width: 90%; /* Adjust this to make the tables wider */
+            margin: 0 auto; /* Center the container */
+        }
+        
+        .block-explorer-table {
+            width: 400; /* Make the tables fill the container */
+            /* rest of your styles... */
+        }
+
+        
+        /* Center-align table headers and data cells */
+        .block-explorer-table th,
+        .block-explorer-table td {
+            border: 1px solid #0f0;
+            padding: 10px; /* Adjust the padding for both headers and data cells */
+            text-align: center; /* Center-align the table headers and data cells */
+            background-color: #000;
+            color: #0ff;
+        }
+        
+        footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            text-align: center
+
+        }
+        footer a {
+            color: #0f0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+        <div class="console-window">
+        <h1>XenBLOCKs Mining Account Stats</h1>
+        <form id="account-form">
+            <label for="account">Enter your XenBLOCKs account</label>
+            <input type="text" id="account" name="account" placeholder="Your account address">
+            <button type="submit" id="fetch-button">Check Account</button>
+        </form>
+        <p class="hidden" id="refresh-message">Data can be refreshed in<span id="countdown">60</span> Seconds</p>
+        <a href="https://www.buymeacoffee.com/treecitywes"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=treecitywes&button_colour=00e608&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
+        <a href="https://github.com/jacklevin74/xenminer/" target="_blank" class="download-link" style="color: lightblue;">Download the latest miner here!</a>
+    </div> <!-- Close console-window div -->
+
+    <div id="result">
+        <div class="table-container">
+            <div class="result-section hidden" id="account-details">
+                <h2>Miner Account Details</h2>
+                <table class="block-explorer-table" id="account-details-table" style="width: 100%;"></table>
+            </div>    <div id="disclaimer"></div>
+            <div class="result-section hidden" id="network-details">
+                <h2>Network Details</h2>
+                <table class="block-explorer-table" id="network-details-table" style="width: 100%;"></table>
+            </div>
+        </div>
+    <div style="text-align: center;">
+        <br>Created by TreeCityWes.eth - Visit <a href="https://treecitytrading.us" target="_blank" style="color: lightblue;">treecitytrading.us</a> for more info!
+    </div>
+
+
+    <footer class="hidden"> <!-- Added hidden class to footer -->
+
+    </footer>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const networkStatsUrl = 'https://raw.githubusercontent.com/TreeCityWes/HashHead/main/network_stats.json';
+        const accountsInfoUrl = 'https://raw.githubusercontent.com/TreeCityWes/HashHead/main/accounts.json';
+
+        let fetchButton = document.getElementById("fetch-button");
+
+        let savedAccountAddress = localStorage.getItem("accountAddress");
+        if(savedAccountAddress) {
+            document.getElementById("account").value = savedAccountAddress;
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { hour: 'numeric', minute: '2-digit', hour12: true };
+
+            document.getElementById("current-time").textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        const updateDisclaimer = () => {
+            let now = new Date();
+            let nextUpdateTime = new Date(now);
+            nextUpdateTime.setMinutes(Math.ceil(now.getMinutes() / 10) * 10); // Round up to the next multiple of 10
+            nextUpdateTime.setSeconds(0);
+
+            if (nextUpdateTime.getMinutes() === 0) {
+                nextUpdateTime.setHours(now.getHours() + 1);
+            }
+
+            let disclaimerText = `The time is currently ${now.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.<br>`;
+            disclaimerText += `The next data update will be at ${nextUpdateTime.toLocaleString('en-US', {  hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.`;
+
+            document.getElementById("disclaimer").innerHTML = disclaimerText;
+}
+
+
+        const fetchData = (account) => {
+            fetch(networkStatsUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let networkHtmlStr = '';
+                    networkHtmlStr += `<tr><td class="data-label">RPC URL:</td> <td class="data-value">http://xenminer.mooo.com:5555</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">CURRENT TIME:</td> <td class="data-value" id="current-time"></td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">CHAIN ID:</td> <td class="data-value">0x1A5F0</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">CURRENCY:</td> <td class="data-value">XNM</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">TOTAL BLOCKS MINED:</td> <td class="data-value">${data["Total Blocks"] || 'N/A'}</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">Mining Speed:</td> <td class="data-value">${data["Mining speed"] || 'N/A'}</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">Mining Blockrate:</td> <td class="data-value">${data["Mining Blockrate"] || 'N/A'}</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">Current Miners:</td> <td class="data-value">${data["Current miners"] || 'N/A'}</td></tr>`;
+                    networkHtmlStr += `<tr><td class="data-label">Current Difficulty:</td> <td class="data-value">${data["Current difficulty"] || 'N/A'}</td></tr>`;
+                    document.getElementById("network-details-table").innerHTML = networkHtmlStr;
+                    document.getElementById("network-details").classList.remove("hidden");
+
+                    updateCurrentTime();
+                    setInterval(updateCurrentTime, 1000);
+                    
+                    return fetch(accountsInfoUrl);
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let accountData = data.data.find(d => d.account.toLowerCase() === account.toLowerCase());
+                    let accountHtmlStr = '';
+                    if(accountData) {
+                        let xenium = (accountData.total_blocks || 0) * 10;
+                        accountHtmlStr += `<tr><td class="data-label">Account:</td> <td class="data-value">${accountData.account}</td></tr>`;
+                        accountHtmlStr += `<tr><td class="data-label">XENIUM ($XNM):</td> <td class="data-value">${xenium}</td></tr>`;
+                        accountHtmlStr += `<tr><td class="data-label">TOTAL BLOCKS:</td> <td class="data-value">${accountData.total_blocks}</td></tr>`;
+                        accountHtmlStr += `<tr><td class="data-label">XUNI BLOCKS:</td> <td class="data-value">${accountData.total_xuni}</td></tr>`;
+                        accountHtmlStr += `<tr><td class="data-label">SUPER BLOCKS:</td> <td class="data-value">${accountData.super_blocks}</td></tr>`;
+                        accountHtmlStr += `<tr><td class="data-label">DAILY BLOCKS:</td> <td class="data-value">${accountData.daily_blocks}</td></tr>`;
+                    } else {
+                        accountHtmlStr = '<tr><td colspan="2" class="data-value">No data available for this account.</td></tr>';
+                    }
+                    document.getElementById("account-details-table").innerHTML = accountHtmlStr;
+                    document.getElementById("account-details").classList.remove("hidden");
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    document.getElementById("network-details").classList.add("hidden");
+                    document.getElementById("account-details").classList.add("hidden");
+                    let errorMsg = document.createElement("div");
+                    errorMsg.id = "error-message";
+                    errorMsg.textContent = "There was an error fetching the data. Please try again later.";
+                    errorMsg.style.color = 'red';
+                    document.getElementById("result").appendChild(errorMsg);
+                });
+        };
+
+        document.getElementById("account-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            let currentAccount = document.getElementById("account").value.toLowerCase();
+            localStorage.setItem("accountAddress", currentAccount);
+            fetchData(currentAccount);
+        });
+
+        updateDisclaimer();
+        setInterval(updateDisclaimer, 1000); // Update every second to keep the time accurate
+    });
+</script>
+
+</html>
