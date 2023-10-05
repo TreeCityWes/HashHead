@@ -6,10 +6,10 @@ import os
 
 
 # Define the URLs
-url1 = "http://xenminer.mooo.com:4448/leaderboard"
-url2 = "http://xenminer.mooo.com/leaderboard"
-total_blocks_url = "http://xenminer.mooo.com/total_blocks"  
-url_xuni = "http://xenminer.mooo.com/get_xuni_counts"
+url1 = "http://xenblocks.io:4448/leaderboard"
+url2 = "http://xenblocks.io/leaderboard"
+total_blocks_url = "http://xenblocks.io/total_blocks"  
+url_xuni = "http://xenblocks.io/get_xuni_counts"
 
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
