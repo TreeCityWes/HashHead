@@ -4,13 +4,11 @@ import json
 from datetime import datetime
 import os
 
-
 # Define the URLs
 url1 = "http://xenblocks.io:4448/leaderboard"
 url2 = "http://xenblocks.io/leaderboard"
-total_blocks_url = "http://xenblocks.io/total_blocks"  
+total_blocks_url = "http://xenblocks.io/total_blocks"
 url_xuni = "http://xenblocks.io/get_xuni_counts"
-
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
 response1 = requests.get(url1)
@@ -48,46 +46,7 @@ for row in soup1.select('table tr')[1:]:
         'super_blocks': super_blocks,
         'daily_blocks': daily_blocks
     })
-# After fetching the account_data, append the Xuni Counts
-for entry in account_data:
-    account = entry.get('account', '')
-    entry['total_xuni'] = xuni_counts.get(account, '0')
 
-
-# Extract Network Stats
-network_stats = {}
-
-# Add timestamp
-network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-
-# Send GET request to get total_blocks
-total_blocks_response = requests.get(total_blocks_url)
-
-if total_blocks_response.status_code == 200:
-    try:
-        total_blocks_data = total_blocks_response.json()
-        network_stats['Total Blocks'] = total_blocks_data.get('total_blocks_top100', '0')
-    except json.JSONDecodeError:
-        print("Error decoding JSON from /total_blocks endpoint")
-else:
-    print(f"Error: Received status code {total_blocks_response.status_code} from /total_blocks endpoint")
-
-# Extracting other stats from both soup1 and soup2
-for soup in [soup1, soup2]:
-    for heading in soup.find_all(['h2', 'h3', 'h4']):
-        text = heading.text.strip()
-        if heading.name == 'h4':
-            parts = text.split('Current difficulty:')
-            network_stats['Current miners'] = parts[0].replace('Current miners:', '').strip()
-            if len(parts) > 1:
-                network_stats['Current difficulty'] = parts[1].strip()
-        else:
-            key, value = text.split(':') if ':' in text else (text, None)
-            network_stats[key.strip()] = value.strip() if value else None
-
-# Write the network stats to a separate JSON file
-with open('network_stats.json', 'w') as f:
-    json.dump(network_stats, f, indent=4)
 # Extract and Process Account Data from the second URL
 for row in soup2.select('table tr')[1:]:
     cols = row.select('td')
@@ -113,6 +72,41 @@ for row in soup2.select('table tr')[1:]:
                 'total_hashes_per_second': total_hashes_per_second,
                 'daily_blocks': 'Sub-500 Rank'
             })
+
+# Update the Xuni Counts for all accounts
+for entry in account_data:
+    account = entry.get('account', '')
+    entry['total_xuni'] = xuni_counts.get(account, '0')
+
+# Extract Network Stats
+network_stats = {}
+network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+total_blocks_response = requests.get(total_blocks_url)
+if total_blocks_response.status_code == 200:
+    try:
+        total_blocks_data = total_blocks_response.json()
+        network_stats['Total Blocks'] = total_blocks_data.get('total_blocks_top100', '0')
+    except json.JSONDecodeError:
+        print("Error decoding JSON from /total_blocks endpoint")
+else:
+    print(f"Error: Received status code {total_blocks_response.status_code} from /total_blocks endpoint")
+
+# Extracting other stats from both soup1 and soup2
+for soup in [soup1, soup2]:
+    for heading in soup.find_all(['h2', 'h3', 'h4']):
+        text = heading.text.strip()
+        if heading.name == 'h4':
+            parts = text.split('Current difficulty:')
+            network_stats['Current miners'] = parts[0].replace('Current miners:', '').strip()
+            if len(parts) > 1:
+                network_stats['Current difficulty'] = parts[1].strip()
+        else:
+            key, value = text.split(':') if ':' in text else (text, None)
+            network_stats[key.strip()] = value.strip() if value else None
+
+# Write data to files
+with open('network_stats.json', 'w') as f:
+    json.dump(network_stats, f, indent=4)
 
 account_data = account_data[:25000] + [{'account': entry['account'], 'status': 'Out of top 25000'} for entry in account_data[25000:]]
 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
