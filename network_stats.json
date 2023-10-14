@@ -1,8 +1,8 @@
 {
-    "timestamp": "2023-10-14T19:16:04",
-    "Total Blocks": 3012609,
-    "Mining speed": "353 khash/sec",
-    "Mining Blockrate": "56 blocks per minute",
-    "Current miners": "1386",
+    "timestamp": "2023-10-14T19:23:49",
+    "Total Blocks": 3013075,
+    "Mining speed": "349 khash/sec",
+    "Mining Blockrate": "62 blocks per minute",
+    "Current miners": "1343",
     "Current difficulty": "67400"
 }
