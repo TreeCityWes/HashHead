@@ -95,16 +95,26 @@ else:
 for soup in [soup1, soup2]:
     for heading in soup.find_all(['h2', 'h3', 'h4']):
         text = heading.text.strip()
-        if ':' in text:
+        if 'Current miners' in text:
+            # This assumes the format "Current miners: <value>"
+            network_stats['TOTAL MINERS'] = text.split(':')[1].strip()
+        elif 'Current difficulty' in text:
+            # This assumes the format "Current difficulty: <value>"
+            network_stats['CURRENT DIFFICULTY'] = text.split(':')[1].strip()
+        elif ':' in text:
             parts = text.split(':')
             key = parts[0].strip()
             # Join back any extra parts that might have been split
             value = ':'.join(parts[1:]).strip()
             network_stats[key] = value
-        elif 'Current miners' in text:
-            network_stats['Current miners'] = text.replace('Current miners', '').strip()
-        elif 'Current difficulty' in text:
-            network_stats['Current difficulty'] = text.replace('Current difficulty', '').strip()
+
+# Now you should print or assign these values to your webpage elements
+# This is a pseudocode example
+for key, value in network_stats.items():
+    print(f"{key}: {value}")
+    # Update the webpage elements with the new data
+    # webpage_element[key].text = value  # This line is just an example and will not work as-is
+
 
 
 # Write data to files
