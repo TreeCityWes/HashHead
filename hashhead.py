@@ -95,14 +95,17 @@ else:
 for soup in [soup1, soup2]:
     for heading in soup.find_all(['h2', 'h3', 'h4']):
         text = heading.text.strip()
-        if heading.name == 'h4':
-            parts = text.split('Current difficulty:')
-            network_stats['Current miners'] = parts[0].replace('Current miners:', '').strip()
-            if len(parts) > 1:
-                network_stats['Current difficulty'] = parts[1].strip()
-        else:
-            key, value = text.split(':') if ':' in text else (text, None)
-            network_stats[key.strip()] = value.strip() if value else None
+        if ':' in text:
+            parts = text.split(':')
+            key = parts[0].strip()
+            # Join back any extra parts that might have been split
+            value = ':'.join(parts[1:]).strip()
+            network_stats[key] = value
+        elif 'Current miners' in text:
+            network_stats['Current miners'] = text.replace('Current miners', '').strip()
+        elif 'Current difficulty' in text:
+            network_stats['Current difficulty'] = text.replace('Current difficulty', '').strip()
+
 
 # Write data to files
 with open('network_stats.json', 'w') as f:
