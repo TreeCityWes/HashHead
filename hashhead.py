@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 # Define the URLs
-url1 = "http://xenminer.mooo.com:4448/leaderboard"
+url1 = "http://xenminer.mooo.com/leaderboard"
 url2 = "http://xenminer.mooo.com/leaderboard"
 total_blocks_url = "http://xenminer.mooo.com/total_blocks"
 url_xuni = "http://xenminer.mooo.com/get_xuni_counts"
