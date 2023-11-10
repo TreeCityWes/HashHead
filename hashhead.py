@@ -4,11 +4,11 @@ import json
 from datetime import datetime
 import os
 
-# Define the URLs
-url1 = "http://xenblocks.io:4448/leaderboard"
-url2 = "http://xenblocks.io/leaderboard"
-total_blocks_url = "http://xenblocks.io/total_blocks"
-url_xuni = "http://xenblocks.io/get_xuni_counts"
+
+url1 = "http://xenminer.mooo.com/leaderboard"
+url2 = "http://xenminer.mooo.com/leaderboard"  
+total_blocks_url = "http://xenminer.mooo.com/total_blocks"
+url_xuni = "http://xenminer.mooo.com/get_xuni_counts"
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
 response1 = requests.get(url1)
@@ -91,18 +91,29 @@ if total_blocks_response.status_code == 200:
 else:
     print(f"Error: Received status code {total_blocks_response.status_code} from /total_blocks endpoint")
 
-# Extracting other stats from both soup1 and soup2
 for soup in [soup1, soup2]:
     for heading in soup.find_all(['h2', 'h3', 'h4']):
         text = heading.text.strip()
-        if heading.name == 'h4':
-            parts = text.split('Current difficulty:')
-            network_stats['Current miners'] = parts[0].replace('Current miners:', '').strip()
-            if len(parts) > 1:
-                network_stats['Current difficulty'] = parts[1].strip()
-        else:
-            key, value = text.split(':') if ':' in text else (text, None)
-            network_stats[key.strip()] = value.strip() if value else None
+        if ':' in text:
+            parts = text.split(':')
+            key = parts[0].strip()
+            # Join back any extra parts that might have been split
+            value = ':'.join(parts[1:]).strip()
+            network_stats[key] = value
+        elif 'Current miners' in text:
+            network_stats['Current miners'] = text.replace('Current miners', '').strip()
+        elif 'Current difficulty' in text:
+            network_stats['Current miners'] = text.replace('Current difficulty', '').strip()
+
+
+# Now you should print or assign these values to your webpage elements
+# This is a pseudocode example
+for key, value in network_stats.items():
+    print(f"{key}: {value}")
+    # Update the webpage elements with the new data
+    # webpage_element[key].text = value  # This line is just an example and will not work as-is
+
+
 
 # Write data to files
 with open('network_stats.json', 'w') as f:
