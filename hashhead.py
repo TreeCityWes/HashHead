@@ -97,23 +97,21 @@ for soup in [soup1, soup2]:
         if ':' in text:
             parts = text.split(':')
             key = parts[0].strip()
-            # Join back any extra parts that might have been split
             value = ':'.join(parts[1:]).strip()
             network_stats[key] = value
+        elif 'Current miners' in text and 'Current difficulty' in text:
+            # Split the text into two parts for 'Current miners' and 'Current difficulty'
+            miners, difficulty = text.split('Current difficulty:')
+            network_stats['Current miners'] = miners.replace('Current miners', '').strip()
+            network_stats['Current difficulty'] = difficulty.strip()
         elif 'Current miners' in text:
             network_stats['Current miners'] = text.replace('Current miners', '').strip()
         elif 'Current difficulty' in text:
-            network_stats['Current miners'] = text.replace('Current difficulty', '').strip()
+            network_stats['Current difficulty'] = text.replace('Current difficulty', '').strip()
 
 
-# Now you should print or assign these values to your webpage elements
-# This is a pseudocode example
 for key, value in network_stats.items():
     print(f"{key}: {value}")
-    # Update the webpage elements with the new data
-    # webpage_element[key].text = value  # This line is just an example and will not work as-is
-
-
 
 # Write data to files
 with open('network_stats.json', 'w') as f:
