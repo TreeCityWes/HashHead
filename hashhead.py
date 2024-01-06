@@ -94,21 +94,20 @@ else:
 for soup in [soup1, soup2]:
     for heading in soup.find_all(['h2', 'h3', 'h4']):
         text = heading.text.strip()
-        if ':' in text:
+        if 'Current miners' in text and 'Current difficulty' in text:
+            # Split the text into two parts for 'Current miners' and 'Current difficulty'
+            miners_part, difficulty_part = text.split('Current difficulty:')
+            # Extract the number of miners
+            miners_number = miners_part.split('Current miners:')[1].strip()
+            # Extract the difficulty value
+            difficulty_number = difficulty_part.strip()
+            network_stats['Current miners'] = miners_number
+            network_stats['Current difficulty'] = difficulty_number
+        elif ':' in text:
             parts = text.split(':')
             key = parts[0].strip()
             value = ':'.join(parts[1:]).strip()
             network_stats[key] = value
-        elif 'Current miners' in text and 'Current difficulty' in text:
-            # Split the text into two parts for 'Current miners' and 'Current difficulty'
-            miners, difficulty = text.split('Current difficulty:')
-            network_stats['Current miners'] = miners.replace('Current miners', '').strip()
-            network_stats['Current difficulty'] = difficulty.strip()
-        elif 'Current miners' in text:
-            network_stats['Current miners'] = text.replace('Current miners', '').strip()
-        elif 'Current difficulty' in text:
-            network_stats['Current difficulty'] = text.replace('Current difficulty', '').strip()
-
 
 for key, value in network_stats.items():
     print(f"{key}: {value}")
