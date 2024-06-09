@@ -7,8 +7,8 @@ import os
 
 url1 = "http://xenblocks.io/leaderboard"
 url2 = "http://xenblocks.io/leaderboard"  
-total_blocks_url = "http://xenminer.mooo.com/total_blocks"
-url_xuni = "http://xenminer.mooo.com/get_xuni_counts"
+total_blocks_url = "http://xenblocks.io/total_blocks"
+url_xuni = "http://xenblocks.io/get_xuni_counts"
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
 response1 = requests.get(url1)
