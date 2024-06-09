@@ -3,31 +3,56 @@ from bs4 import BeautifulSoup
 import json
 from datetime import datetime
 import os
+import logging
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-url1 = "http://xenblocks.io/leaderboard"
-url2 = "http://xenblocks.io/leaderboard"  
-total_blocks_url = "http://xenblocks.io/total_blocks"
-url_xuni = "http://xenblocks.io/get_xuni_counts"
+# Function to create a session with retries
+def create_session_with_retries():
+    session = requests.Session()
+    retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    session.mount('http://', HTTPAdapter(max_retries=retries))
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+    return session
+
+# Fetch environment variables or use default values
+URL1 = os.getenv('URL1', 'http://xenblocks.io/leaderboard')
+URL2 = os.getenv('URL2', 'http://xenblocks.io/leaderboard')
+TOTAL_BLOCKS_URL = os.getenv('TOTAL_BLOCKS_URL', 'http://xenblocks.io/total_blocks')
+URL_XUNI = os.getenv('URL_XUNI', 'http://xenblocks.io/get_xuni_counts')
+
+# Create a session with retries
+session = create_session_with_retries()
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
-response1 = requests.get(url1)
-response2 = requests.get(url2)
-soup1 = BeautifulSoup(response1.text, 'html.parser')
-soup2 = BeautifulSoup(response2.text, 'html.parser')
+try:
+    response1 = session.get(URL1)
+    response2 = session.get(URL2)
+    response1.raise_for_status()
+    response2.raise_for_status()
+    soup1 = BeautifulSoup(response1.text, 'html.parser')
+    soup2 = BeautifulSoup(response2.text, 'html.parser')
+except requests.exceptions.RequestException as e:
+    logging.error(f"Error fetching data: {e}")
+    raise
 
 # Initialize a list to store the account data
 account_data = []
 
 # Fetch Xuni Counts
-response_xuni = requests.get(url_xuni)
 xuni_counts = {}
-if response_xuni.status_code == 200:
-    try:
-        xuni_data = response_xuni.json()
-        xuni_counts = {entry['account']: entry['count'] for entry in xuni_data}
-    except json.JSONDecodeError:
-        print("Error decoding JSON from /get_xuni_counts endpoint")
+try:
+    response_xuni = session.get(URL_XUNI)
+    response_xuni.raise_for_status()
+    xuni_data = response_xuni.json()
+    xuni_counts = {entry['account']: entry['count'] for entry in xuni_data}
+except requests.exceptions.RequestException as e:
+    logging.error(f"Error fetching Xuni counts: {e}")
+except json.JSONDecodeError:
+    logging.error("Error decoding JSON from /get_xuni_counts endpoint")
 
 # Extract and Process Account Data from the first URL
 for row in soup1.select('table tr')[1:]:
@@ -81,15 +106,15 @@ for entry in account_data:
 # Extract Network Stats
 network_stats = {}
 network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-total_blocks_response = requests.get(total_blocks_url)
-if total_blocks_response.status_code == 200:
-    try:
-        total_blocks_data = total_blocks_response.json()
-        network_stats['Total Blocks'] = total_blocks_data.get('total_blocks_top100', '0')
-    except json.JSONDecodeError:
-        print("Error decoding JSON from /total_blocks endpoint")
-else:
-    print(f"Error: Received status code {total_blocks_response.status_code} from /total_blocks endpoint")
+try:
+    total_blocks_response = session.get(TOTAL_BLOCKS_URL)
+    total_blocks_response.raise_for_status()
+    total_blocks_data = total_blocks_response.json()
+    network_stats['Total Blocks'] = total_blocks_data.get('total_blocks_top100', '0')
+except requests.exceptions.RequestException as e:
+    logging.error(f"Error fetching total blocks: {e}")
+except json.JSONDecodeError:
+    logging.error("Error decoding JSON from /total_blocks endpoint")
 
 for soup in [soup1, soup2]:
     for heading in soup.find_all(['h2', 'h3', 'h4']):
@@ -110,7 +135,7 @@ for soup in [soup1, soup2]:
             network_stats[key] = value
 
 for key, value in network_stats.items():
-    print(f"{key}: {value}")
+    logging.info(f"{key}: {value}")
 
 # Write data to files
 with open('network_stats.json', 'w') as f:
