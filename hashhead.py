@@ -10,12 +10,9 @@ from requests.packages.urllib3.util.retry import Retry
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Function to create a session with retries
-def create_session_with_retries():
+# Function to create a session
+def create_session():
     session = requests.Session()
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-    session.mount('http://', HTTPAdapter(max_retries=retries))
-    session.mount('https://', HTTPAdapter(max_retries=retries))
     return session
 
 # Fetch environment variables or use default values
@@ -24,13 +21,13 @@ URL2 = os.getenv('URL2', 'http://xenblocks.io/leaderboard')
 TOTAL_BLOCKS_URL = os.getenv('TOTAL_BLOCKS_URL', 'http://xenblocks.io/total_blocks')
 URL_XUNI = os.getenv('URL_XUNI', 'http://xenblocks.io/get_xuni_counts')
 
-# Create a session with retries
-session = create_session_with_retries()
+# Create a session
+session = create_session()
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
 try:
-    response1 = session.get(URL1)
-    response2 = session.get(URL2)
+    response1 = session.get(URL1, timeout=10)
+    response2 = session.get(URL2, timeout=10)
     response1.raise_for_status()
     response2.raise_for_status()
     soup1 = BeautifulSoup(response1.text, 'html.parser')
@@ -45,7 +42,7 @@ account_data = []
 # Fetch Xuni Counts
 xuni_counts = {}
 try:
-    response_xuni = session.get(URL_XUNI)
+    response_xuni = session.get(URL_XUNI, timeout=10)
     response_xuni.raise_for_status()
     xuni_data = response_xuni.json()
     xuni_counts = {entry['account']: entry['count'] for entry in xuni_data}
@@ -109,7 +106,7 @@ for entry in account_data:
 network_stats = {}
 network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 try:
-    total_blocks_response = session.get(TOTAL_BLOCKS_URL)
+    total_blocks_response = session.get(TOTAL_BLOCKS_URL, timeout=10)
     total_blocks_response.raise_for_status()
     total_blocks_data = total_blocks_response.json()
     network_stats['Total Blocks'] = total_blocks_data.get('total_blocks_top100', '0')
