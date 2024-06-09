@@ -5,8 +5,8 @@ from datetime import datetime
 import os
 
 
-url1 = "http://xenminer.mooo.com/leaderboard"
-url2 = "http://xenminer.mooo.com/leaderboard"  
+url1 = "http://xenblocks.io/leaderboard"
+url2 = "http://xenblocks.io/leaderboard"  
 total_blocks_url = "http://xenminer.mooo.com/total_blocks"
 url_xuni = "http://xenminer.mooo.com/get_xuni_counts"
 
