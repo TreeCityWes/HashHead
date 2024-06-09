@@ -19,7 +19,7 @@ def create_session():
 URL1 = os.getenv('URL1', 'http://xenblocks.io/leaderboard')
 URL2 = os.getenv('URL2', 'http://xenblocks.io/leaderboard')
 TOTAL_BLOCKS_URL = os.getenv('TOTAL_BLOCKS_URL', 'http://xenblocks.io/total_blocks')
-URL_XUNI = os.getenv('URL_XUNI', 'http://xenblocks.io/get_xuni_counts')
+URL_XUNI = os.getenv('URL_XUNI', 'http://xenminer.mooo.com/get_xuni_counts')
 
 # Create a session
 session = create_session()
