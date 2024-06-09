@@ -51,8 +51,10 @@ try:
     xuni_counts = {entry['account']: entry['count'] for entry in xuni_data}
 except requests.exceptions.RequestException as e:
     logging.error(f"Error fetching Xuni counts: {e}")
+    xuni_counts = {}  # Mark that we have an error for all accounts
 except json.JSONDecodeError:
     logging.error("Error decoding JSON from /get_xuni_counts endpoint")
+    xuni_counts = {}
 
 # Extract and Process Account Data from the first URL
 for row in soup1.select('table tr')[1:]:
@@ -101,7 +103,7 @@ for row in soup2.select('table tr')[1:]:
 # Update the Xuni Counts for all accounts
 for entry in account_data:
     account = entry.get('account', '')
-    entry['total_xuni'] = xuni_counts.get(account, '0')
+    entry['total_xuni'] = xuni_counts.get(account, '(RPC Error)')
 
 # Extract Network Stats
 network_stats = {}
