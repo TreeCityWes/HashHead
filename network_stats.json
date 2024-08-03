@@ -1,6 +1,7 @@
 {
-    "timestamp": "2024-08-03T04:30:47",
-    "Mining Blockrate": "46 blocks per minute",
+    "timestamp": "2024-08-03T04:43:19",
+    "Total Blocks": 26481113,
+    "Mining Blockrate": "56 blocks per minute",
     "Current miners": "475",
     "Current difficulty": "70000"
 }
