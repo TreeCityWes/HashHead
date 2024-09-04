@@ -1,7 +1,6 @@
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -23,9 +22,9 @@ chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
 try:
-    service = Service(ChromeDriverManager().install())
+    # Use the ChromeDriver that was installed by the GitHub Action
+    service = Service('/usr/local/bin/chromedriver')
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.set_page_load_timeout(30)  # Set page load timeout to 30 seconds
     logging.info("WebDriver initialized successfully")
 except Exception as e:
     logging.error(f"Failed to initialize WebDriver: {e}")
@@ -40,7 +39,7 @@ try:
     # Wait for the stats to load
     logging.info("Waiting for stats to load")
     WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "stat-box"))
+        EC.presence_of_element_located((By.CLASS_NAME, "stat"))
     )
     logging.info("Stats loaded successfully")
 
