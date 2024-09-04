@@ -13,7 +13,7 @@ permissions:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
       run: |
         export DISPLAY=:99
         chromedriver --url-base=/wd/hub &
-        python hashhead.py
+        python -u hashhead.py
       
     - name: Commit and push if it changed
       run: |
@@ -55,3 +55,12 @@ jobs:
         git commit -m "Data updated on ${timestamp}" || exit 0
         git pull --rebase origin main
         git push https://${{ secrets.GH_TOKEN }}@github.com/TreeCityWes/HashHead.git HEAD:main
+
+    - name: Upload logs
+      if: failure()
+      uses: actions/upload-artifact@v2
+      with:
+        name: debug-logs
+        path: |
+          *.log
+          *.json
