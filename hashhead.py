@@ -1,78 +1,56 @@
 import requests
-from bs4 import BeautifulSoup
 import json
 from datetime import datetime
-import os
 import logging
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Function to create a session
-def create_session():
-    session = requests.Session()
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
-    session.mount('http://', HTTPAdapter(max_retries=retries))
-    session.mount('https://', HTTPAdapter(max_retries=retries))
-    return session
+# API endpoints
+LEADERBOARD_API = 'https://explorer.xenblocks.io/api/leaderboard?limit=10000'
+STATS_API = 'https://explorer.xenblocks.io/api/stats'
 
-# Fetch environment variables or use default values
-URL = os.getenv('URL', 'https://explorer.xenblocks.io/leaderboard?limit=10000')
+# Function to fetch data from API
+def fetch_api_data(url):
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching data from {url}: {e}")
+        return None
 
-# Create a session
-session = create_session()
+# Fetch leaderboard data
+leaderboard_data = fetch_api_data(LEADERBOARD_API)
 
-# Send HTTP request and parse the HTML content of the page with BeautifulSoup
-try:
-    response = session.get(URL, timeout=30)  # Increased timeout for larger dataset
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'html.parser')
-except requests.exceptions.RequestException as e:
-    logging.error(f"Error fetching data: {e}")
-    raise
+# Fetch stats data
+stats_data = fetch_api_data(STATS_API)
 
-# Extract Network Stats
-network_stats = {}
-network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+if leaderboard_data is None or stats_data is None:
+    logging.error("Failed to fetch required data. Exiting.")
+    exit(1)
 
-stats_boxes = soup.select('.stats-box')
-for box in stats_boxes:
-    title = box.select_one('.title').text.strip()
-    value = box.select_one('.value').text.strip()
-    if title == 'TOTAL BLOCKS':
-        network_stats['Total Blocks'] = value
-    elif title == 'MINING BLOCKRATE':
-        network_stats['Mining Blockrate'] = f"{value} BLOCKS PER MINUTE"
-    elif title == 'CURRENT MINERS':
-        network_stats['Current miners'] = value
-    elif title == 'CURRENT DIFFICULTY':
-        network_stats['Current difficulty'] = value
+# Process network stats
+network_stats = {
+    'timestamp': datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+    'Total Blocks': str(stats_data.get('totalBlocks', 0)),
+    'Mining Blockrate': f"{stats_data.get('blockRate', 0)} BLOCKS PER MINUTE",
+    'Current miners': str(stats_data.get('activeMiners', 0)),
+    'Current difficulty': str(stats_data.get('difficulty', 0))
+}
 
-# Initialize a list to store the account data
+# Process account data
 account_data = []
-
-# Extract and Process Account Data
-for row in soup.select('table tr')[1:]:  # Skip header row
-    cols = row.select('td')
-    if not cols or len(cols) < 4:
-        continue
-    rank = int(cols[0].text.strip())
-    account = cols[1].text.strip()
-    total_blocks = int(cols[2].text.strip().replace(',', ''))
-    super_blocks = int(cols[3].text.strip().replace(',', ''))
-    
-    entry = {
-        'rank': rank,
-        'account': account,
-        'total_blocks': total_blocks,
-        'super_blocks': super_blocks,
+for entry in leaderboard_data:
+    account_data.append({
+        'rank': entry['rank'],
+        'account': entry['address'],
+        'total_blocks': entry['totalBlocks'],
+        'super_blocks': entry['superBlocks'],
         'daily_blocks': 'Sub-500 Rank',
         'total_hashes_per_second': 'N/A',
         'total_xuni': '(Coming Soon)'
-    }
-    account_data.append(entry)
+    })
 
 # Ensure we have exactly 25,000 entries
 if len(account_data) < 25000:
@@ -84,16 +62,13 @@ if len(account_data) < 25000:
 elif len(account_data) > 25000:
     account_data = account_data[:25000]
 
-for key, value in network_stats.items():
-    logging.info(f"{key}: {value}")
-
-# Write data to files
+# Write network stats to file
 with open('network_stats.json', 'w') as f:
     json.dump(network_stats, f, indent=4)
 
+# Write account data to file
 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 account_output_data = {'timestamp': timestamp, 'data': account_data}
-
 with open('accounts.json', 'w') as f:
     json.dump(account_output_data, f, indent=4)
 
