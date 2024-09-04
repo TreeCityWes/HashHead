@@ -12,8 +12,8 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# URL of the leaderboard
-URL = 'https://explorer.xenblocks.io/leaderboard'
+# URL of the leaderboard with 10,000 limit
+URL = 'https://explorer.xenblocks.io/leaderboard?limit=10000'
 
 # Setup Selenium WebDriver
 chrome_options = Options()
@@ -89,17 +89,6 @@ try:
                 'total_xuni': '(Coming Soon)'
             })
     logging.info(f"Extracted data for {len(account_data)} accounts")
-
-    # Ensure we have exactly 25,000 entries
-    if len(account_data) < 25000:
-        for i in range(len(account_data), 25000):
-            account_data.append({
-                'account': f'placeholder_{i}',
-                'status': 'Out of top 25000'
-            })
-    elif len(account_data) > 25000:
-        account_data = account_data[:25000]
-    logging.info(f"Final account data count: {len(account_data)}")
 
     # Write network stats to file
     with open('network_stats.json', 'w') as f:
