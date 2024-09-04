@@ -13,125 +13,76 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Function to create a session
 def create_session():
     session = requests.Session()
+    retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+    session.mount('http://', HTTPAdapter(max_retries=retries))
+    session.mount('https://', HTTPAdapter(max_retries=retries))
     return session
 
 # Fetch environment variables or use default values
-URL1 = os.getenv('URL1', 'http://xenblocks.io/leaderboard')
-URL2 = os.getenv('URL2', 'http://xenblocks.io/leaderboard')
-TOTAL_BLOCKS_URL = os.getenv('TOTAL_BLOCKS_URL', 'http://xenblocks.io/total_blocks')
-URL_XUNI = os.getenv('URL_XUNI', 'http://xenminer.mooo.com/get_xuni_counts')
+URL = os.getenv('URL', 'https://explorer.xenblocks.io/leaderboard?limit=10000')
 
 # Create a session
 session = create_session()
 
 # Send HTTP request and parse the HTML content of the page with BeautifulSoup
 try:
-    response1 = session.get(URL1, timeout=10)
-    response2 = session.get(URL2, timeout=10)
-    response1.raise_for_status()
-    response2.raise_for_status()
-    soup1 = BeautifulSoup(response1.text, 'html.parser')
-    soup2 = BeautifulSoup(response2.text, 'html.parser')
+    response = session.get(URL, timeout=30)  # Increased timeout for larger dataset
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
 except requests.exceptions.RequestException as e:
     logging.error(f"Error fetching data: {e}")
     raise
 
+# Extract Network Stats
+network_stats = {}
+network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+stats_boxes = soup.select('.stats-box')
+for box in stats_boxes:
+    title = box.select_one('.title').text.strip()
+    value = box.select_one('.value').text.strip()
+    if title == 'TOTAL BLOCKS':
+        network_stats['Total Blocks'] = value
+    elif title == 'MINING BLOCKRATE':
+        network_stats['Mining Blockrate'] = f"{value} BLOCKS PER MINUTE"
+    elif title == 'CURRENT MINERS':
+        network_stats['Current miners'] = value
+    elif title == 'CURRENT DIFFICULTY':
+        network_stats['Current difficulty'] = value
+
 # Initialize a list to store the account data
 account_data = []
 
-# Fetch Xuni Counts
-xuni_counts = {}
-try:
-    response_xuni = session.get(URL_XUNI, timeout=10)
-    response_xuni.raise_for_status()
-    xuni_data = response_xuni.json()
-    xuni_counts = {entry['account']: entry['count'] for entry in xuni_data}
-except requests.exceptions.RequestException as e:
-    logging.error(f"Error fetching Xuni counts: {e}")
-    xuni_counts = {}  # Mark that we have an error for all accounts
-except json.JSONDecodeError:
-    logging.error("Error decoding JSON from /get_xuni_counts endpoint")
-    xuni_counts = {}
-
-# Extract and Process Account Data from the first URL
-for row in soup1.select('table tr')[1:]:
+# Extract and Process Account Data
+for row in soup.select('table tr')[1:]:  # Skip header row
     cols = row.select('td')
-    if not cols:
+    if not cols or len(cols) < 4:
         continue
     rank = int(cols[0].text.strip())
     account = cols[1].text.strip()
-    total_blocks = int(cols[2].text.strip())
-    super_blocks = int(cols[3].text.strip())
-    daily_blocks = cols[4].text.strip()
-    account_data.append({
+    total_blocks = int(cols[2].text.strip().replace(',', ''))
+    super_blocks = int(cols[3].text.strip().replace(',', ''))
+    
+    entry = {
         'rank': rank,
         'account': account,
         'total_blocks': total_blocks,
         'super_blocks': super_blocks,
-        'daily_blocks': daily_blocks
-    })
+        'daily_blocks': 'Sub-500 Rank',
+        'total_hashes_per_second': 'N/A',
+        'total_xuni': '(Coming Soon)'
+    }
+    account_data.append(entry)
 
-# Extract and Process Account Data from the second URL
-for row in soup2.select('table tr')[1:]:
-    cols = row.select('td')
-    if not cols:
-        continue
-    rank = int(cols[0].text.strip())
-    account = cols[1].text.strip()
-    total_blocks = int(cols[2].text.strip())
-    super_blocks = int(cols[3].text.strip())
-    total_hashes_per_second = cols[4].text.strip()
-
-    for entry in account_data:
-        if entry['account'] == account:
-            entry['total_hashes_per_second'] = total_hashes_per_second
-            break
-    else:
-        if rank <= 25000:
-            account_data.append({
-                'rank': rank,
-                'account': account,
-                'total_blocks': total_blocks,
-                'super_blocks': super_blocks,
-                'total_hashes_per_second': total_hashes_per_second,
-                'daily_blocks': 'Sub-500 Rank'
-            })
-
-# Update the Xuni Counts for all accounts
-for entry in account_data:
-    account = entry.get('account', '')
-    entry['total_xuni'] = xuni_counts.get(account, '(RPC Error)')
-
-# Extract Network Stats
-network_stats = {}
-network_stats['timestamp'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-try:
-    total_blocks_response = session.get(TOTAL_BLOCKS_URL, timeout=10)
-    total_blocks_response.raise_for_status()
-    total_blocks_data = total_blocks_response.json()
-    network_stats['Total Blocks'] = total_blocks_data.get('total_blocks_top100', '0')
-except requests.exceptions.RequestException as e:
-    logging.error(f"Error fetching total blocks: {e}")
-except json.JSONDecodeError:
-    logging.error("Error decoding JSON from /total_blocks endpoint")
-
-for soup in [soup1, soup2]:
-    for heading in soup.find_all(['h2', 'h3', 'h4']):
-        text = heading.text.strip()
-        if 'Current miners' in text and 'Current difficulty' in text:
-            # Split the text into two parts for 'Current miners' and 'Current difficulty'
-            miners_part, difficulty_part = text.split('Current difficulty:')
-            # Extract the number of miners
-            miners_number = miners_part.split('Current miners:')[1].strip()
-            # Extract the difficulty value
-            difficulty_number = difficulty_part.strip()
-            network_stats['Current miners'] = miners_number
-            network_stats['Current difficulty'] = difficulty_number
-        elif ':' in text:
-            parts = text.split(':')
-            key = parts[0].strip()
-            value = ':'.join(parts[1:]).strip()
-            network_stats[key] = value
+# Ensure we have exactly 25,000 entries
+if len(account_data) < 25000:
+    for i in range(len(account_data), 25000):
+        account_data.append({
+            'account': f'placeholder_{i}',
+            'status': 'Out of top 25000'
+        })
+elif len(account_data) > 25000:
+    account_data = account_data[:25000]
 
 for key, value in network_stats.items():
     logging.info(f"{key}: {value}")
@@ -140,9 +91,10 @@ for key, value in network_stats.items():
 with open('network_stats.json', 'w') as f:
     json.dump(network_stats, f, indent=4)
 
-account_data = account_data[:25000] + [{'account': entry['account'], 'status': 'Out of top 25000'} for entry in account_data[25000:]]
 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 account_output_data = {'timestamp': timestamp, 'data': account_data}
 
 with open('accounts.json', 'w') as f:
     json.dump(account_output_data, f, indent=4)
+
+logging.info("Data scraping and writing completed successfully.")
