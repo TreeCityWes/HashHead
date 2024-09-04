@@ -13,7 +13,7 @@ def create_session():
     session = requests.Session()
     return session
 
-# Define the URL
+# Define the URL correctly
 LEADERBOARD_URL = os.getenv('LEADERBOARD_URL', 'https://explorer.xenblocks.io/leaderboard?limit=10000')
 
 # Create a session
@@ -39,8 +39,8 @@ for row in soup.select('table tbody tr'):
 
     rank = int(cols[0].text.strip())       # Rank of the miner
     account = cols[1].text.strip()         # Account (ETH address)
-    total_blocks = int(cols[2].text.strip())  # Total blocks mined
-    super_blocks = int(cols[3].text.strip())  # Super blocks mined
+    total_blocks = int(cols[2].text.strip().replace(',', ''))  # Total blocks mined
+    super_blocks = int(cols[3].text.strip().replace(',', ''))  # Super blocks mined
 
     # Add this account's data to the list
     account_data.append({
