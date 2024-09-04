@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import json
 from datetime import datetime
 import logging
+import traceback
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,36 +22,33 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
+driver = None
 try:
-    # Use the ChromeDriver that was installed by the GitHub Action
+    logging.info("Initializing WebDriver")
     service = Service('/usr/local/bin/chromedriver')
     driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.set_page_load_timeout(60)  # Set page load timeout to 60 seconds
     logging.info("WebDriver initialized successfully")
-except Exception as e:
-    logging.error(f"Failed to initialize WebDriver: {e}")
-    raise
 
-try:
-    # Navigate to the page
     logging.info(f"Navigating to {URL}")
     driver.get(URL)
     logging.info("Page loaded successfully")
 
-    # Wait for the stats to load
     logging.info("Waiting for stats to load")
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CLASS_NAME, "stat"))
     )
     logging.info("Stats loaded successfully")
 
-    # Extract network stats
     network_stats = {
         'timestamp': datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
     }
     stat_boxes = driver.find_elements(By.CLASS_NAME, "stat")
+    logging.info(f"Found {len(stat_boxes)} stat boxes")
     for box in stat_boxes:
         title = box.find_element(By.CLASS_NAME, "stat-title").text.strip()
         value = box.find_element(By.CLASS_NAME, "stat-value").text.strip()
+        logging.info(f"Stat: {title} = {value}")
         if 'Total Blocks' in title:
             network_stats['Total Blocks'] = value
         elif 'Mining Blockrate' in title:
@@ -59,19 +57,19 @@ try:
             network_stats['Current miners'] = value
         elif 'Current Difficulty' in title:
             network_stats['Current difficulty'] = value
-    logging.info("Network stats extracted successfully")
 
-    # Wait for the table to load
     logging.info("Waiting for table to load")
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.TAG_NAME, "table"))
     )
     logging.info("Table loaded successfully")
 
-    # Extract account data
     account_data = []
     rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
-    for row in rows:
+    logging.info(f"Found {len(rows)} rows in the table")
+    for i, row in enumerate(rows):
+        if i % 100 == 0:
+            logging.info(f"Processing row {i}")
         cols = row.find_elements(By.TAG_NAME, "td")
         if len(cols) >= 4:
             rank = int(cols[0].text.strip())
@@ -88,14 +86,13 @@ try:
                 'total_hashes_per_second': 'N/A',
                 'total_xuni': '(Coming Soon)'
             })
+
     logging.info(f"Extracted data for {len(account_data)} accounts")
 
-    # Write network stats to file
     with open('network_stats.json', 'w') as f:
         json.dump(network_stats, f, indent=4)
     logging.info("Network stats written to file")
 
-    # Write account data to file
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     account_output_data = {'timestamp': timestamp, 'data': account_data}
     with open('accounts.json', 'w') as f:
@@ -105,8 +102,10 @@ try:
     logging.info("Data scraping and writing completed successfully.")
 
 except Exception as e:
-    logging.error(f"An error occurred: {e}")
+    logging.error(f"An error occurred: {str(e)}")
+    logging.error(traceback.format_exc())
 
 finally:
-    driver.quit()
-    logging.info("WebDriver closed")
+    if driver:
+        driver.quit()
+        logging.info("WebDriver closed")
